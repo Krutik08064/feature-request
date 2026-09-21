@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: combot-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: combot-backend
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
+      - MONGODB_URL=mongodb://mongodb:27017
+      - MONGODB_DB_NAME=combot_db
+      - JWT_SECRET_KEY=docker_combot_jwt_secret_key_minimum_32_characters!
+      - COOKIE_SECURE=false
+      - COOKIE_SAMESITE=lax
+      - ENABLE_DEV_TOKENS=true
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: combot-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  mongo_data:
