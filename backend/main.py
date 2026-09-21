@@ -55,7 +55,7 @@ app.include_router(auth.router)
 app.include_router(posts.router)
 app.include_router(comments.router)
 
-@app.get("/api/health", tags=["health"])
+@app.api_route("/api/health", methods=["GET", "HEAD"], tags=["health"])
 async def health_check():
     """Health check endpoint for deployment monitoring."""
     return {
@@ -64,7 +64,7 @@ async def health_check():
         "database": "connected"
     }
 
-@app.get("/", tags=["health"])
+@app.api_route("/", methods=["GET", "HEAD"], tags=["health"])
 async def root():
     return {
         "app": "ComBot API",
