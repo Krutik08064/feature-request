@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from typing import Optional
 import logging
+import certifi
 from app.core.config import settings
 
 logger = logging.getLogger("app.db")
@@ -14,7 +15,12 @@ mongodb = MongoDB()
 async def connect_to_mongo() -> None:
     """Initializes the MongoDB connection and ensures collections and indexes exist."""
     logger.info(f"Connecting to MongoDB at {settings.MONGODB_URL}...")
-    mongodb.client = AsyncIOMotorClient(settings.MONGODB_URL)
+    
+    client_kwargs = {}
+    if "mongodb+srv://" in settings.MONGODB_URL or "ssl=true" in settings.MONGODB_URL.lower():
+        client_kwargs["tlsCAFile"] = certifi.where()
+    
+    mongodb.client = AsyncIOMotorClient(settings.MONGODB_URL, **client_kwargs)
     mongodb.db = mongodb.client[settings.MONGODB_DB_NAME]
     
     # Verify connection

@@ -5,13 +5,17 @@ from datetime import datetime, timedelta
 # Ensure backend root is in sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import certifi
 from pymongo import MongoClient
 from app.core.config import settings
 from app.core.security import get_password_hash
 
 def seed_data():
     print(f"Connecting to MongoDB at {settings.MONGODB_URL} (db: {settings.MONGODB_DB_NAME})...")
-    client = MongoClient(settings.MONGODB_URL, serverSelectionTimeoutMS=5000)
+    kwargs = {"serverSelectionTimeoutMS": 10000}
+    if "mongodb+srv://" in settings.MONGODB_URL or "ssl=true" in settings.MONGODB_URL.lower():
+        kwargs["tlsCAFile"] = certifi.where()
+    client = MongoClient(settings.MONGODB_URL, **kwargs)
     db = client[settings.MONGODB_DB_NAME]
 
     # Verify connection

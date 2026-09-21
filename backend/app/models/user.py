@@ -40,7 +40,7 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class UserInDB(BaseModel):
-    id: str = Field(alias="_id")
+    id: Optional[str] = None
     name: str
     email: str
     password_hash: str
